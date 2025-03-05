@@ -19,21 +19,28 @@ namespace EmploymentVerificationApi.Controllers
         [HttpPost("verify-employment")]
         public async Task<IActionResult> VerifyEmployment([FromBody] EmploymentVerificationRequest request)
         {
-            if (request == null)
-                return BadRequest("Invalid request");
-
-            var employee = await Task.Run(() =>
+            try
             {
-                return Employees.Find(e =>
-                    e.EmployeeId == request.EmployeeId &&
-                    e.CompanyName == request.CompanyName &&
-                    e.VerificationCode == request.VerificationCode);
-            });
+                if (request == null)
+                    return BadRequest("Invalid request");
 
-            if (employee == null)
-                return Ok(new { Verified = false });
-            else
-                return Ok(new { Verified = true });
+                var employee = await Task.Run(() =>
+                {
+                    return Employees.Find(e =>
+                        e.EmployeeId == request.EmployeeId &&
+                        e.CompanyName == request.CompanyName &&
+                        e.VerificationCode == request.VerificationCode);
+                });
+
+                if (employee == null)
+                    return Ok(new { Verified = false });
+                else
+                    return Ok(new { Verified = true });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }
